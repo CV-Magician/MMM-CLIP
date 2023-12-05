@@ -1,57 +1,64 @@
 import json
+import numpy as np
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import auc
 
-def calculate_map(label_data, pred_data):
-    precision = 0.
-    recall = 0.
-    acc = 0.
-    classes = ['motorcycle', 'truck', 'boat', 'bus', 'cycle', 'sitar', 'ektara', 'flutes', 'tabla', 'harmonium']
+classes = [
+    "aeroplane",
+    "bicycle",
+    "bird",
+    "boat",
+    "bottle",
+    "bus",
+    "car",
+    "cat",
+    "chair",
+    "cow",
+    "diningtable",
+    "dog",
+    "horse",
+    "motorbike",
+    "person",
+    "pottedplant",
+    "sheep",
+    "sofa",
+    "train",
+    "tvmonitor",
+]
 
-    for class_name in classes:
-        tp = 0.
-        fp = 0.
-        tn = 0.
-        fn = 0.
-        num_samples = len(label_data)
 
-        for i in range(num_samples):
-            
-            gt = label_data[i][class_name]
-            pred = pred_data[i][class_name]
+def calculate_ap(gt, pred):
+    precision, recall, _ = precision_recall_curve(gt, pred)
+    ap = auc(recall, precision)
+    return ap
 
-            if gt == 1 and pred == 1:
-                tp += 1
-            elif gt == 0 and pred == 1:
-                fp += 1
-            elif gt == 1 and pred == 0:
-                fn += 1
-            elif gt == 0 and pred == 0:
-                tn += 1
 
-        precision += tp / (tp + fp) if (tp + fp) > 0 else 0
+def calculate(label_data, pred_data):
+    ap_list = []
 
-        recall += tp / (tp + fn) if (tp + fn) > 0 else 0
+    for _, class_name in enumerate(classes):
+        gt_list = [sample[class_name] for sample in label_data]
+        pred_list = [sample[class_name] for sample in pred_data]
 
-        acc += (tp + tn) / (tp + fp + tn + fn) if (tp + fp + tn + fn) > 0 else 0
+        ap = calculate_ap(gt_list, pred_list)
+        ap_list.append(ap)
 
-    mAP = precision / len(classes)
-    mAR = recall / len(classes)
-    mACC = acc / len(classes)
+    mAP = np.mean(ap_list)
 
-    return mAP, mAR, mACC
+    return mAP
+
 
 # 从label.json和pred.json加载数据
-with open('label.json', 'r') as f:
+with open("train.json", "r") as f:
     label_data = json.load(f)
 
-with open('pred.json', 'r') as f:
+with open("pred.json", "r") as f:
     pred_data = json.load(f)
 
-sorted_data = sorted(pred_data, key=lambda x: x["Image_Name"])
+# 根据Image_Name排序数据
+sorted_label = sorted(label_data, key=lambda x: x["name"])
+sorted_pred = sorted(pred_data, key=lambda x: x["name"])
 
-print(label_data[0]['motorcycle'])
+mAP = calculate(sorted_label, sorted_pred)
 
-mAP, mAR, mACC = calculate_map(label_data, sorted_data)
-
-print(f'mAP: {mAP}')
-print(f'mAR: {mAR}')
-print(f'mACC: {mACC}')
+print(f"mAP: {mAP}")
