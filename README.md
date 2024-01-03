@@ -1,5 +1,4 @@
-# MMM-CLIP
-Multi-label-image-classification with Multi-method CLIP
+# MMM-CLIP: Multi-label-image-classification with Multi-method CLIP
 
 Yitong Chen<sup>+1</sup>, Zhipeng Qiu<sup>+1</sup>, Xingsong Ye<sup>+1</sup><br>
 <sup>1</sup>Shanghai Key Lab of Intelligent Information Processing, School of Computer Science, Fudan University.<br>
