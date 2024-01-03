@@ -38,6 +38,10 @@ Considering the multi-label image classification task, the dataset can be called
 ## Baseline
 In the absence of a predefined benchmark score for evaluating our approach on the Kaggle dataset dedicated to the multi-label image classification task, we seek to establish a baseline performance using an existing methodology. To address this need, we turn to the work presented in the repository at hellowangqian's Github, which employs pre-trained visual models, specifically VGG and ResNet101, followed by a fully connected layer for multi-class classification tasks. Specifically, the model structure is illustrated below.
 
+![Baseline.](img/basic_model.png)
+
+*Figure 2. The baseline model structure.*
+
 ### Pre-Trained Model
 The choice of pre-trained models is rooted in their ability to capture intricate features from large-scale image datasets. VGG and ResNet101, being well-established architecture, have demonstrated success in various computer vision tasks. Leveraging the pre-trained weights of these models allows us to benefit from the knowledge acquired during their training on extensive datasets, providing a robust starting point for our multi-label image classification task.
 
@@ -53,25 +57,25 @@ The inherent power of CLIP in handling a wide array of tasks is well-established
 In this method, we perform binary classification for each class of each image, determining whether it contains the target object. For "existence" state, we utilize the foundational CLIP template "A photo of a...". To mitigate CLIP's dependence on label content, the negative case, indicating "non-existence", is formulated as "A photo of nothing" instead of "A photo without a...". The cosine similarity results between these two label constructions and the image, obtained through the CLIP text and image encoders, are then assigned a corresponding label of 1 or 0 based on the similarity. For example in Figure 2, if we ask about the "Motorcycle" in this picture, it will select 0-index and mark the motorcycle label as 1; but for "Trunk", the negative is selected and the trunk label is marked as 0.
 
 ![The inference pipeline of **Yes or No** aligns with CLIP's, except that the input takes our prompt template.](img/yes_or_no.png)
-*The inference pipeline of **Yes or No** aligns with CLIP's, except that the input takes our prompt template.*
+*Figure 3. The inference pipeline of **Yes or No** aligns with CLIP's, except that the input takes our prompt template.*
 
 **(2) List-all Classes**
 For every image, we exhaustively enumerate all possible multi-classification scenarios. The result is given by the sum of combinations:
 $\sum_{k=0}^{n} \binom{n}{k} = 2^n$
-The prompt content involves a simple combination of classes without using templates or embellishments. For the optimal results provided by CLIP, all labels corresponding to the identified combinations are marked as 1, others are labeled 0. See Figure 3 for details.
+The prompt content involves a simple combination of classes without using templates or embellishments. For the optimal results provided by CLIP, all labels corresponding to the identified combinations are marked as 1, others are labeled 0. See Figure 4 for details.
 
 ![A brief illustration of the **List-all Classes** framework. It just gets all the text combinations for input, and then gets the answer combinations for output.](img/list_all.png)
-*A brief illustration of the **List-all Classes** framework. It just gets all the text combinations for input, and then gets the answer combinations for output.*
+*Figure 4. A brief illustration of the **List-all Classes** framework. It just gets all the text combinations for input, and then gets the answer combinations for output.*
 
 **(3) Top-all Classes**
-Enumerating all possible combinations in the "List-all" approach becomes increasingly challenging as the number of categories grows exponentially. Even with the capability to handle Kaggle's 10-class dataset, when faced with the VOC-2007 dataset, issues of "CUDA out of memory" arise. The comparative results from CLIP not only provide information about the highest values but also incorporate ranking information derived from large-scale text-image pair pretraining, exhibiting a certain degree of accuracy. To address the complexity arising from the exhaustive enumeration in List-all, we propose the "Top-all" strategy. Initially, CLIP is employed to rank classes, forming a sequence of [Top-1, Top-2,...,Top-n]. The combination content is then transformed into combinations of Top-k and all preceding results, as explained in Figure 4. A common sense is that when a label exists, labels with higher probabilities are also likely to exist. Finally, by adding a "nothing" prompt to ensure label completeness, the complexity of the previous method is reduced to O(n + n + 1) = O(n).
+Enumerating all possible combinations in the "List-all" approach becomes increasingly challenging as the number of categories grows exponentially. Even with the capability to handle Kaggle's 10-class dataset, when faced with the VOC-2007 dataset, issues of "CUDA out of memory" arise. The comparative results from CLIP not only provide information about the highest values but also incorporate ranking information derived from large-scale text-image pair pretraining, exhibiting a certain degree of accuracy. To address the complexity arising from the exhaustive enumeration in List-all, we propose the "Top-all" strategy. Initially, CLIP is employed to rank classes, forming a sequence of [Top-1, Top-2,...,Top-n]. The combination content is then transformed into combinations of Top-k and all preceding results, as explained in Figure 5. A common sense is that when a label exists, labels with higher probabilities are also likely to exist. Finally, by adding a "nothing" prompt to ensure label completeness, the complexity of the previous method is reduced to O(n + n + 1) = O(n).
 
 ![The detailed pipeline of **Top-all Classes** first sorts the text through CLIP and obtains the reduced text combination result for input, then follows the **List-all Classes** to get its answers.](img/top-all.png)
 
-*The detailed pipeline of **Top-all Classes** first sorts the text through CLIP and obtains the reduced text combination result for input, then follows the **List-all Classes** to get its answers.*
+*Figure 5. The detailed pipeline of **Top-all Classes** first sorts the text through CLIP and obtains the reduced text combination result for input, then follows the **List-all Classes** to get its answers.*
 
 **(4) LLM Optimization**
-In this approach, we harness the capabilities of large language model (LLM) to optimize the classification prompts by receiving the response of quarying the Qwen-14B API with "Please caption an image that contains ...". Other details are the same as the above and see the change in Figure 5.
+In this approach, we harness the capabilities of large language model (LLM) to optimize the classification prompts by receiving the response of quarying the Qwen-14B API with "Please caption an image that contains ...". Other details are the same as the above and see the change in Figure 6.
 
 ![ ](img/llm.png)
 
@@ -82,18 +86,18 @@ In this approach, we harness the capabilities of large language model (LLM) to o
 If we leave CLIP unadjusted and only change the prompt, there exist some problems. The response to a single-label image classification task is based on contrast, and it's possible for the predicted probabilities of the positive and negative labels to be closely aligned. Therefore, we contemplate modifying the architecture of CLIP by adding a learnable adapter to tailor it for our specific task.
 
 **(1) FC-Adapter**
-Following the baseline approach, we simply add a fully connected layer to the fused features after the image and text encoders to transform them into the required label information (See their difference in Figure 6). Specifically, the probability of each label appearing in the image. To ensure a probability distribution within the range of [0, 1], we applied a sigmoid activation function to impose constraints. This method, as compared to the baseline, achieved a remarkable 98.4% mAP on the Kaggle dataset (See more results at Table 2 and Table 3), demonstrating its efficacy in adapting the model without altering the original parameters.
+Following the baseline approach, we simply add a fully connected layer to the fused features after the image and text encoders to transform them into the required label information (See their difference in Figure 7). Specifically, the probability of each label appearing in the image. To ensure a probability distribution within the range of [0, 1], we applied a sigmoid activation function to impose constraints. This method, as compared to the baseline, achieved a remarkable 98.4% mAP on the Kaggle dataset (See more results at Table 2 and Table 3), demonstrating its efficacy in adapting the model without altering the original parameters.
 
 ![CLIP-FC inherits Baseline's idea, but does not use image preprocessing methods such as data augmentation, and incorporates additional text information.](img/comp.png)
 
-*CLIP-FC inherits Baseline's idea, but does not use image preprocessing methods such as data augmentation, and incorporates additional text information.*
+*Figure 7. CLIP-FC inherits Baseline's idea, but does not use image preprocessing methods such as data augmentation, and incorporates additional text information.*
 
 **(2) MLD-Adapter**
-Considering the strong correlation between the structure of FC Adapter and the number of categories in the target dataset, which greatly limits the Zero-shot and Few-shot capabilities of CLIP, inspired by [Ridnik et al., 2023](https://arxiv.org/abs/2301.01234), we replace the non-transferable classification header FC-layer with a transferable Multi-label decoder. Specifically, we simply remove the self-attention layer from the Transformer decoder structure, and input text embedding as query and image embedding as key and value into the cross-attention layer. We then average-pooling on the token dimension to obtain output logits, which are then activated by sigmoid function to obtain probability values of [0, 1]. The experimental results show that just one layer of MLD block is enough to achieve good results on the target dataset after pretraining. See more details in Figure 7.
+Considering the strong correlation between the structure of FC Adapter and the number of categories in the target dataset, which greatly limits the Zero-shot and Few-shot capabilities of CLIP, inspired by [Ridnik et al., 2023](https://arxiv.org/abs/2301.01234), we replace the non-transferable classification header FC-layer with a transferable Multi-label decoder. Specifically, we simply remove the self-attention layer from the Transformer decoder structure, and input text embedding as query and image embedding as key and value into the cross-attention layer. We then average-pooling on the token dimension to obtain output logits, which are then activated by sigmoid function to obtain probability values of [0, 1]. The experimental results show that just one layer of MLD block is enough to achieve good results on the target dataset after pretraining. See more details in Figure 8.
 
 ![CLIP-MLD simply remove the self-attention layer from the Transformer decoder structure, and input text embedding as query and image embedding as key and value into the cross-attention layer.](img/clip_mld.png)
 
-*CLIP-MLD simply remove the self-attention layer from the Transformer decoder structure, and input text embedding as query and image embedding as key and value into the cross-attention layer.*
+*Figure 8. CLIP-MLD simply remove the self-attention layer from the Transformer decoder structure, and input text embedding as query and image embedding as key and value into the cross-attention layer.*
 
 ## Experiments
 ### Setups
@@ -160,6 +164,62 @@ Our four prompt-based methods show that CLIP has some multi-label image classifi
 In this paper, we proposed multiple methods to make the CLIP model capable of multi-label image classification, which can be roughly divided into two approaches. The first approach is based on text prompt, while the second involves adding adapters to it. Additionally, we established a basic baseline for conventional learning comparison. In the context of few-shot and zero-shot scenarios, the baseline is clearly incapable of any classification. However, the text prompt-based approach can achieve a mAP of 60% under appropriate trick settings in zero-shot scenarios. In few-shot scenarios, our proposed methods can achieve up to 96% mAP with only 2% of the training set and even over 99% mAP with 20% of the training set. Simultaneously, our approaches have been tested on other datasets, consistently yielding SOTA results. Through our research, it's evident that CLIP stands out as a robust model, showcasing considerable strength in our applications. The introduction of the Adapter should be a pivotal element, demonstrating its paramount role in enhancing CLIP's adaptability and performance across diverse tasks.
 
 ## Reference
+
+[1] Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al. "Language models are few-shot learners." arXiv preprint arXiv:2005.14165, 2020.
+
+[2] J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and L. Fei-Fei. "ImageNet: A Large-Scale Hierarchical Image Database." In CVPR09, 2009.
+
+[3] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. "Bert: Pre-training of deep bidirectional transformers for language understanding." In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 4171–4186, 2018.
+
+[4] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. "An image is worth 16x16 words: Transformers for image recognition at scale." arXiv preprint arXiv:2010.11929, 2020.
+
+[5] Mark Everingham, Luc Van Gool, Christopher KI Williams, John Winn, and Andrew Zisserman. "The Pascal Visual Object Classes (VOC) Challenge." International Journal of Computer Vision, 88(2):303–338, 2010.
+
+[6] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition, pages 770–778, 2016.
+
+[7] Sunan He, Taian Guo, Tao Dai, Ruizhi Qiao, Xiujun Shu, Bo Ren, and Shu-Tao Xia. "Open-vocabulary multi-label classification via multi-modal knowledge transfer." In Proceedings of the AAAI Conference on Artificial Intelligence, pages 808–816, 2023.
+
+[8] hellowangqian. "A baseline for multi-label image classification using ensemble deep CNN." GitHub repository, 2019.
+
+[9] Alex Krizhevsky, Ilya Sutskever, and Geoffrey E Hinton. "Imagenet classification with deep convolutional neural networks." Advances in neural information processing systems, 25, 2012.
+
+[10] Y. Lecun, L. Bottou, Y. Bengio, and P. Haffner. "Gradient-based learning applied to document recognition." Proceedings of the IEEE, 86(11):2278–2324, 1998.
+
+[11] Liunian Harold Li, Mark Yatskar, Da Yin, Cho-Jui Hsieh, and Kai-Wei Chang. "Visualbert: A simple and performant baseline for vision and language." arXiv preprint arXiv:1908.03557, 2019.
+
+[12] Liunian Harold Li, Mark Yatskar, Da Yin, Cho-Jui Hsieh, and Kai-Wei Chang. "Uni-modal pre-training for cross-modal tasks." arXiv preprint arXiv:2002.06353, 2020.
+
+[13] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Doll ́ar, and C Lawrence Zitnick. "Microsoft COCO: Common Objects in Context." In European Conference on Computer Vision, pages 740–755. Springer, 2014.
+
+[14] Pengfei Liu, Weizhe Yuan, Jinlan Fu, Zhengbao Jiang, Hiroaki Hayashi, and Graham Neubig. "Pre-train, prompt, and predict: A systematic survey of prompting methods in natural language processing." 2021.
+
+[15] Ilya Loshchilov and Frank Hutter. "Decoupled weight decay regularization." 2019.
+
+[16] Jiasen Lu, Dhruv Batra, Devi Parikh, and Stefan Lee. "Vilbert: Pretraining task-agnostic visiolinguistic representations for vision-and-language tasks." arXiv preprint arXiv:1908.02265, 2019.
+
+[17] Stephen Merity, Bryan McCann, Alex So, Jerry Zheng, Sharan Rajan, Chrisantha Fernando, Jacob Bosboom, Doug Kim, Richard Chen, and Douwe Kiela. "Llama: A large language model with abilities in many tasks." arXiv preprint arXiv:2004.05886, 2020.
+
+[18] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. "Learning transferable visual models from natural language supervision." In International conference on machine learning, pages 8748–8763. PMLR, 2021.
+
+[19] Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu. "Exploring the limits of transfer learning with a unified text-to-text transformer." arXiv preprint arXiv:1910.10683, 2019.
+
+[20] Tal Ridnik, Gilad Sharir, Avi Ben-Cohen, Emanuel Ben-Baruch, and Asaf Noy. "ML-Decoder: Scalable and versatile classification head." In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), pages 32–41, 2023.
+
+[21] Meherun Nesa Shraboni. "Kaggle multi-label image classification dataset," 2022.
+
+[22] Karen Simonyan and Andrew Zisserman. "Very deep convolutional networks for large-scale image recognition." arXiv preprint arXiv:1409.1556, 2014.
+
+[23] Karen Simonyan and Andrew Zisserman. "Very deep convolutional networks for large-scale image recognition." In 3rd International Conference on Learning Representations, ICLR 2015, San Diego, CA, USA, May 7-9, 2015, Conference Track Proceedings, 2015.
+
+[24] Christian Szegedy, Wei Liu, Yangqing Jia, Pierre Sermanet, Scott Reed, Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, and Andrew Rabinovich. "Going deeper with convolutions." arXiv preprint arXiv:1409.4842, 2014.
+
+[25] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. "Attention is all you need." Advances in neural information processing systems, 30, 2017.
+
+[26] Hualiang Wang, Yi Li, Huifeng Yao, and Xiaomeng Li. "Clipn for zero-shot OOD detection: Teaching clip to say no." In Proceedings of the IEEE/CVF International Conference on Computer Vision, pages 1802–1812, 2023.
+
+[27] Qian Wang, Ning Jia, and Toby P. Breckon. "A baseline for multi-label image classification using an ensemble of deep convolutional neural networks." In 2019 IEEE International Conference on Image Processing (ICIP), pages 644–648, 2019.
+
+[28] Xuelin Zhu, Jiuxin Cao, Dongqi Tang, Furong Xu, Weijia Liu, Jiawei Ge, Bo Liu, Qingpei Guo, Tianyi Zhang, et al. "Text as image: Learning transferable adapter for multi-label classification." arXiv preprint arXiv:2312.04160, 2023.
 
 
 ## Citation
