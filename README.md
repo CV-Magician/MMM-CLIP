@@ -227,7 +227,7 @@ In this paper, we proposed multiple methods to make the CLIP model capable of mu
 @article{mmm-clip202401,
  title={MMM-CLIP: Multi-label-image-classification with Multi-method CLIP},
  author={Chen, Yitong and Qiu, Zhipeng and Wang, Siyin and Ye, Xingsong},
- course={Computer Vision Course (COMP130124.01) , School of Computer Science, Fudan University},
+ course={Computer Vision Course (COMP130124.01), School of Computer Science, Fudan University},
  year={2024}
 }
 
