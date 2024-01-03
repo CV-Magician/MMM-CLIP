@@ -60,8 +60,8 @@ In this method, we perform binary classification for each class of each image, d
 *Figure 3. The inference pipeline of **Yes or No** aligns with CLIP's, except that the input takes our prompt template.*
 
 **(2) List-all Classes**
-For every image, we exhaustively enumerate all possible multi-classification scenarios. The result is given by the sum of combinations:
-$\sum_{k=0}^{n} \binom{n}{k} = 2^n$
+For every image, we exhaustively enumerate all possible multi-classification scenarios. The result is given by the sum of combinations:  
+$\sum_{k=0}^{n} \binom{n}{k} = 2^n$  
 The prompt content involves a simple combination of classes without using templates or embellishments. For the optimal results provided by CLIP, all labels corresponding to the identified combinations are marked as 1, others are labeled 0. See Figure 4 for details.
 
 ![A brief illustration of the **List-all Classes** framework. It just gets all the text combinations for input, and then gets the answer combinations for output.](img/list_all.png)
