@@ -223,7 +223,7 @@ In this paper, we proposed multiple methods to make the CLIP model capable of mu
 
 
 ## Citation
-View our paper at https://github.com/CV-Magician/MMM-CLIP/MMM-CLIP.pdf and slide at https://docs.google.com/presentation/d/1GDWecq5O1wuZ8ib_wrkQVMR_wBoEKr4dcE0jRKoFMHM.
+Feel free to view our [paper](https://github.com/CV-Magician/MMM-CLIP/MMM-CLIP.pdf) and [slide](https://docs.google.com/presentation/d/1GDWecq5O1wuZ8ib_wrkQVMR_wBoEKr4dcE0jRKoFMHM).
 ```
 @article{mmm-clip202401,
  title={MMM-CLIP: Multi-label-image-classification with Multi-method CLIP},
