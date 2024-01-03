@@ -5,6 +5,8 @@ Yitong Chen<sup>+1</sup>, Zhipeng Qiu<sup>+1</sup>, Xingsong Ye<sup>+1</sup><br>
 <sup>+</sup>Equally contributed & Co-Corresponding author.  
 ——Computer Vision Course (COMP130124.01) Project at Fudan University.
 
+<iframe src="https://docs.google.com/presentation/d/1GDWecq5O1wuZ8ib_wrkQVMR_wBoEKr4dcE0jRKoFMHM/edit?usp=sharing" frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
 ## Abstract
 The concerns surrounding single-label image classification have been extensively explored, yet the multi-label image classification problem, often as an adjunct task of object detection, has not been fully studied separately. The conventional approach to solving this task involves using some pre-trained models as the backbone, followed by a fully connected layer to form the classification model, which is then trained on a large scale dataset. While this method is versatile, it is not well-suited for few-shot scenarios and fundamentally incapable of handling zero-shot situations. In our study, we present multiple novel universal multi-label image classification schemes based on the CLIP model including a text prompt-based scheme and a scheme involving modifications to the CLIP model by adding adapters. We have tested the effectiveness of these schemes on multiple datasets. In particular, our CLIP-MLD-Adapater Method has obtained SOTA outcomes in traditional learning, few-shot learning, and zero-shot learning.
 
