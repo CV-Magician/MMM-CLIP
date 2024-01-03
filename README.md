@@ -3,7 +3,7 @@ Multi-label-image-classification with Multi-method CLIP
 
 Yitong Chen<sup>+1</sup>, Zhipeng Qiu<sup>+1</sup>, Xingsong Ye<sup>+1</sup><br>
 <sup>1</sup>Shanghai Key Lab of Intelligent Information Processing, School of Computer Science, Fudan University.<br>
-<sup>+</sup>Equally contributed & Co-Corresponding author.
+<sup>+</sup>Equally contributed & Co-Corresponding author.  
 ——Computer Vision Course (COMP130124.01) Project at Fudan University.
 
 ## Abstract
