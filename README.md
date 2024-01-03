@@ -237,12 +237,16 @@ Feel free to view our [paper](https://github.com/CV-Magician/MMM-CLIP/blob/main/
 # About code
 
 ### Installation 
-
-### Model
+Just turn to [CLIP](https://github.com/openai/CLIP) and follow its Usage.
 
 ### Datasets
+- [Kaggle](https://www.kaggle.com/datasets/meherunnesashraboni/multi-label-image-classification-dataset)
+- [VOC-2007](http://host.robots.ox.ac.uk/pascal/VOC/voc2007/index.html)
+- [MS-COCO](https://cocodataset.org/)
+
+And their respective multi-label json information has been placed in their respective directories. 0 means no, while 1 means yes.
 
 ### Run
-
+The multiple methods we mentioned can be found under the Kaggle dataset based on python files, and running on other datasets is similar. But if you are interested in the CLIP-MLD-Adapter mode, check it out in another repository called MMM-CLIP-PP(also called MMM-CLIP++)
 
 
