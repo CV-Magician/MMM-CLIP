@@ -227,7 +227,7 @@ Feel free to view our [paper](https://github.com/CV-Magician/MMM-CLIP/blob/main/
 ```
 @article{mmm-clip202401,
  title={MMM-CLIP: Multi-label-image-classification with Multi-method CLIP},
- author={Chen, Yitong and Qiu, Zhipeng and Wang, Siyin and Ye, Xingsong},
+ author={Chen, Yitong and Qiu, Zhipeng and Ye, Xingsong},
  course={Computer Vision Course (COMP130124.01), School of Computer Science, Fudan University},
  year={2024}
 }
